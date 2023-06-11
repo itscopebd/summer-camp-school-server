@@ -70,6 +70,15 @@ async function run() {
       }
     })
 
+    app.delete("/users/delete/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const result = await usersCollection.deleteOne(filter);
+      res.send(result)
+    })
+
+
+
 // make admin 
 
     app.patch("/users/admin/:id", async (req, res) => {
@@ -89,7 +98,6 @@ async function run() {
 
     app.patch("/users/instructor/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id)
       const filter = { _id: new ObjectId(id) }
       const updateData = {
         $set: {
