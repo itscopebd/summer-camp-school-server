@@ -46,13 +46,16 @@ async function run() {
     })
 
 
+
+
+
     // users api 
 
-    app.get("/users",async(req,res)=>{
+    app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
-    
+
     app.post('/users', async (req, res) => {
       const user = req.body;
       const query = { userEmail: user.userEmail }
@@ -66,6 +69,39 @@ async function run() {
         res.send(result)
       }
     })
+
+// make admin 
+
+    app.patch("/users/admin/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id)
+      const filter = { _id: new ObjectId(id) }
+      const updateData = {
+        $set: {
+          role: 'admin'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateData);
+      res.send(result)
+    })
+
+    // make instructor
+
+    app.patch("/users/instructor/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id)
+      const filter = { _id: new ObjectId(id) }
+      const updateData = {
+        $set: {
+          role: 'instructor'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateData);
+      res.send(result)
+    })
+
+
+
 
     // carts api 
 
