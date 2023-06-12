@@ -34,13 +34,13 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
 
-    const allDataCollection = client.db("yago").collection("cource");
+    const courceCollection = client.db("yago").collection("cource");
     const cartsCollection = client.db("yago").collection("carts");
     const usersCollection = client.db("yago").collection("users");
 
 
     app.get("/alldata", async (req, res) => {
-      const result = await allDataCollection.find().toArray();
+      const result = await courceCollection.find().toArray();
       res.send(result)
 
     })
@@ -79,7 +79,7 @@ async function run() {
 
 
 
-// make admin 
+    // make admin 
 
     app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
@@ -110,6 +110,52 @@ async function run() {
 
 
 
+  // cource make by instructor 
+
+  app.post("/cource", async (req, res) => {
+    const newItem = req.body;
+    const result = await courceCollection.insertOne(newItem);
+    res.send(result)
+  })
+
+
+    // get cources data 
+    app.get("/cource", async (req, res) => {
+
+      const result = await courceCollection.find().toArray();
+      res.send(result)
+    })
+
+
+    // approved instructor cources by admin 
+
+    app.patch("/cource/approve/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          status: "approved"
+        }
+      }
+      const result = await courceCollection.updateOne(query, update);
+      res.send(result)
+    })
+
+    // Denied instructor cources by admin 
+
+    app.patch("/cource/denied/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          status: "denied"
+        }
+      }
+      const result = await courceCollection.updateOne(query, update);
+      res.send(result)
+    })
+
+  
 
     // carts api 
 
