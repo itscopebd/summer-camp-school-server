@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cors = require("cors");
 const port = process.env.PORT || 5000;
@@ -38,6 +39,14 @@ async function run() {
     const cartsCollection = client.db("yago").collection("carts");
     const usersCollection = client.db("yago").collection("users");
 
+// JWT
+
+app.post("/jwt", (req, res) => {
+  const user = req.body;
+  const access_token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' });
+  res.send({ access_token })
+})
+
 
     app.get("/alldata", async (req, res) => {
       const result = await courceCollection.find().toArray();
@@ -52,12 +61,36 @@ async function run() {
     // users api 
 
     app.get("/users", async (req, res) => {
+
       const result = await usersCollection.find().toArray();
+      res.send(result)
+    })
+
+
+    app.get("/users/roleCheck", async (req, res) => {
+    
+      const query={};
+      if(req.query.email){
+        query={email:req.query.email}
+      }
+    
+      const result = await usersCollection.findOne(query);
+      console.log(result)
+      res.send(result)
+     
+
+    })
+
+    app.get("/users/instructors", async (req, res) => {
+
+      const query = { role: { $in: ['instructor'] } }
+      const result = await usersCollection.find(query).toArray()
       res.send(result)
     })
 
     app.post('/users', async (req, res) => {
       const user = req.body;
+
       const query = { userEmail: user.userEmail }
       const filterUser = await usersCollection.findOne(query);
       if (filterUser) {
@@ -110,19 +143,19 @@ async function run() {
 
 
 
-  // cource make by instructor 
+    // cource make by instructor 
 
-  app.post("/cource", async (req, res) => {
-    const newItem = req.body;
-    const result = await courceCollection.insertOne(newItem);
-    res.send(result)
-  })
+    app.post("/cource", async (req, res) => {
+      const newItem = req.body;
+      const result = await courceCollection.insertOne(newItem);
+      res.send(result)
+    })
 
 
     // get cources data 
     app.get("/cource", async (req, res) => {
-
-      const result = await courceCollection.find().toArray();
+      const query = { status: { $in: ['approved'] } }
+      const result = await courceCollection.find(query).toArray();
       res.send(result)
     })
 
@@ -155,7 +188,7 @@ async function run() {
       res.send(result)
     })
 
-  
+
 
     // carts api 
 
