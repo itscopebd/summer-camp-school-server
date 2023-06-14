@@ -15,7 +15,22 @@ app.get("/", (req, res) => {
 })
 
 
+const verifyJWT = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
 
+    return res.status(401).send({ error: true, message: "unauthorization accesssddds" })
+
+  }
+  const token = authorization.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ error: true, message: "unauthorization access" })
+    }
+    req.decoded = decoded;
+    next()
+  })
+}
 
 
 
@@ -39,13 +54,13 @@ async function run() {
     const cartsCollection = client.db("yago").collection("carts");
     const usersCollection = client.db("yago").collection("users");
 
-// JWT
+    // JWT
 
-app.post("/jwt", (req, res) => {
-  const user = req.body;
-  const access_token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' });
-  res.send({ access_token })
-})
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const access_token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' });
+      res.send({ access_token })
+    })
 
 
     app.get("/alldata", async (req, res) => {
@@ -68,16 +83,16 @@ app.post("/jwt", (req, res) => {
 
 
     app.get("/users/roleCheck", async (req, res) => {
-    
-      const query={};
-      if(req.query.email){
-        query={email:req.query.email}
+
+      const query = {};
+      if (req.query.email) {
+        query = { email: req.query.email }
       }
-    
+
       const result = await usersCollection.findOne(query);
       console.log(result)
       res.send(result)
-     
+
 
     })
 
@@ -205,9 +220,34 @@ app.post("/jwt", (req, res) => {
       res.send(result)
     })
 
+// check user admin 
+    app.get("/users/admin/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
 
+      if (req.decoded.email !== email) {
+        res.send({ admin: false })
 
+      }
+      const query = { userEmail: email };
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === 'admin' }
+    res.send(result)
+    })
 
+// check user instructor 
+
+app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
+  const email = req.params.email;
+
+  if (req.decoded.email !== email) {
+    res.send({ instructor: false })
+
+  }
+  const query = { userEmail: email };
+  const user = await usersCollection.findOne(query);
+  const result = { instructor: user?.role === 'instructor' }
+res.send(result)
+})
 
 
 
