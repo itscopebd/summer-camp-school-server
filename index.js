@@ -82,15 +82,14 @@ async function run() {
     })
 
 
-    app.get("/users/roleCheck", async (req, res) => {
+    app.get("/users/roleCheck/:email", async (req, res) => {
 
-      const query = {};
-      if (req.query.email) {
-        query = { email: req.query.email }
-      }
+
+
+      query = { userEmail: req.query.email }
 
       const result = await usersCollection.findOne(query);
-      console.log(result)
+
       res.send(result)
 
 
@@ -131,7 +130,6 @@ async function run() {
 
     app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id)
       const filter = { _id: new ObjectId(id) }
       const updateData = {
         $set: {
@@ -169,6 +167,11 @@ async function run() {
 
     // get cources data 
     app.get("/cource", async (req, res) => {
+      // const query = { status: { $in: ['approved'] } }
+      const result = await courceCollection.find().toArray();
+      res.send(result)
+    })
+    app.get("/cource/client", async (req, res) => {
       const query = { status: { $in: ['approved'] } }
       const result = await courceCollection.find(query).toArray();
       res.send(result)
@@ -207,6 +210,28 @@ async function run() {
 
     // carts api 
 
+
+    app.get('/carts/:email', async (req, res) => {
+
+      const query = { userEmail: req.params.email };
+      const result = await cartsCollection.find(query).toArray();
+      res.send(result)
+
+    })
+
+
+
+    app.delete("/carts/delete/:id", async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await cartsCollection.deleteOne(query);
+      res.send(result)
+
+
+    })
+
+
+
     app.post("/carts", async (req, res) => {
       const data = req.body;
       const query = { id: data.id }
@@ -220,7 +245,7 @@ async function run() {
       res.send(result)
     })
 
-// check user admin 
+    // check user admin 
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
@@ -231,23 +256,23 @@ async function run() {
       const query = { userEmail: email };
       const user = await usersCollection.findOne(query);
       const result = { admin: user?.role === 'admin' }
-    res.send(result)
+      res.send(result)
     })
 
-// check user instructor 
+    // check user instructor 
 
-app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
-  const email = req.params.email;
+    app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
 
-  if (req.decoded.email !== email) {
-    res.send({ instructor: false })
+      if (req.decoded.email !== email) {
+        res.send({ instructor: false })
 
-  }
-  const query = { userEmail: email };
-  const user = await usersCollection.findOne(query);
-  const result = { instructor: user?.role === 'instructor' }
-res.send(result)
-})
+      }
+      const query = { userEmail: email };
+      const user = await usersCollection.findOne(query);
+      const result = { instructor: user?.role === 'instructor' }
+      res.send(result)
+    })
 
 
 
