@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const stripe = require("stripe")(process.env.stripe_key)
 const cors = require("cors");
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
+ 
   if (!authorization) {
 
     return res.status(401).send({ error: true, message: "unauthorization accesssddds" })
@@ -274,7 +276,21 @@ async function run() {
       res.send(result)
     })
 
+    // create payment 
 
+    app.post("/payment", async (req, res) => {
+      const { price } = req.body;
+      const amount = price * 100;
+      console.log(price)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    })
 
 
     // Connect the client to the server	(optional starting in v4.7)
