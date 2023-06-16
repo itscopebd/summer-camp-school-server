@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
 
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
- 
+
   if (!authorization) {
 
     return res.status(401).send({ error: true, message: "unauthorization accesssddds" })
@@ -236,7 +236,7 @@ async function run() {
 
     app.post("/carts", async (req, res) => {
       const data = req.body;
-      const query = { id: data.id }
+      const query = { id: data.id  }
       const filterData = await cartsCollection.findOne(query);
 
       if (filterData) {
