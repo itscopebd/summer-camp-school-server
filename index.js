@@ -246,7 +246,6 @@ async function run() {
     // check user admin 
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
-      console.log(email)
       if (req.decoded.email !== email) {
         res.send({ admin: false })
 
@@ -261,7 +260,6 @@ async function run() {
 
     app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
-      console.log(email)
       if (req.decoded.email !== email) {
         res.send({ instructor: false })
 
@@ -284,7 +282,7 @@ async function run() {
         payment_method_types: ['card']
       });
       res.send({
-        clientSecret: paymentIntent.client_secret,
+        clientSecret: paymentIntent.client_secret
       });
     })
 
