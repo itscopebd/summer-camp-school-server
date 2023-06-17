@@ -86,12 +86,12 @@ async function run() {
 
     app.get("/users/roleCheck/:email", async (req, res) => {
 
+      // console.log(req.params.email)
 
-
-      query = { userEmail: req.query.email }
+      query = { userEmail: req.params.email }
 
       const result = await usersCollection.findOne(query);
-
+      
       res.send(result)
 
 
@@ -236,7 +236,7 @@ async function run() {
 
     app.post("/carts", async (req, res) => {
       const data = req.body;
-      const query = { id: data.id  }
+      const query = { id: data.id }
       const filterData = await cartsCollection.findOne(query);
 
       if (filterData) {
@@ -250,7 +250,7 @@ async function run() {
     // check user admin 
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
-
+      console.log(email)
       if (req.decoded.email !== email) {
         res.send({ admin: false })
 
@@ -265,7 +265,7 @@ async function run() {
 
     app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
-
+      console.log(email)
       if (req.decoded.email !== email) {
         res.send({ instructor: false })
 
