@@ -86,12 +86,8 @@ async function run() {
 
     app.get("/users/roleCheck/:email", async (req, res) => {
 
-      // console.log(req.params.email)
-
       query = { userEmail: req.params.email }
-
       const result = await usersCollection.findOne(query);
-      
       res.send(result)
 
 
